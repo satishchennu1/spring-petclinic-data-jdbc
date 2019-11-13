@@ -1,0 +1,106 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: petspringapp-green
+    name: petspringapp-green
+    selfLink: /api/v1/namespaces/petspringapp-green/services/petspringapp-green
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: petspringapp-green
+      deploymentconfig: petspringapp-green
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: petspringapp-green
+    name: petspringapp-green
+    selfLink: /apis/apps.openshift.io/v1/namespaces/petspringapp-green/deploymentconfigs/petspringapp-green
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: petspringapp-green
+      deploymentconfig: petspringapp-green
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: petspringapp-green
+          deploymentconfig: petspringapp-green
+      spec:
+        containers:
+        - env:
+          - name: database
+            value: mysql
+          - name: spring.datasource.url
+            value: jdbc:mysql://172.30.92.187:3306/petclinic
+          - name: spring.datasource.username
+            value: root
+          - name: spring.datasource.password
+            value: petclinic
+          image: image-registry.openshift-image-registry.svc:5000/petspringapp-green/petspringapp-green@sha256:b85316166203aef744f2f8dacc0eb21a74ee02915de212bdbd2009be99148bcc
+          imagePullPolicy: Always
+          name: petspringapp-green
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 8778
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - petspringapp-green
+        from:
+          kind: ImageStreamTag
+          name: petspringapp-green:latest
+          namespace: petspringapp-green
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
